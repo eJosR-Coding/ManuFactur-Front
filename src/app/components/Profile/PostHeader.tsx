@@ -1,4 +1,3 @@
-// src/components/PostHeader.tsx
 import { Box, Typography } from "@mui/material";
 
 interface PostHeaderProps {

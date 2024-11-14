@@ -38,7 +38,7 @@ export default function PostList({ posts, setPosts, userId }: PostListProps) {
 
     useEffect(() => {
         fetchPosts();
-    }, []);
+    }, []);  
 
     const handleLoadMore = () => {
         if (page < totalPages) {

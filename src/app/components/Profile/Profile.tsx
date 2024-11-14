@@ -1,45 +1,43 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Box, Typography } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import PostForm from "./PostForm";
 import PostList from "./PostList";
 import { IUser } from '../../types/user';
 import { IPost } from '../../types/post';
+import ChatInterface from "./Chat/ChatInterface";
 
 export default function Profile() {
     const [userData, setUserData] = useState<IUser | null>(null);
     const [posts, setPosts] = useState<IPost[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [showChat, setShowChat] = useState(false);
+    const [currentUserId, setCurrentUserId] = useState<string>('');
 
     useEffect(() => {
-        const storedUserId = localStorage.getItem("userId");
+        // Check if localStorage is available in the browser environment
+        const storedUserId = typeof window !== "undefined" ? localStorage.getItem("userId") : '';
+
         if (storedUserId) {
-            fetchUserData();
+            setCurrentUserId(storedUserId);
+            fetchUserData(storedUserId);
         } else {
             setLoading(false);
         }
     }, []);
 
-    const fetchUserData = async () => {
-        const storedUserId = localStorage.getItem("userId");
-        if (!storedUserId) {
-            setError("User ID is missing.");
-            setLoading(false);
-            return;
-        }
-    
+    const fetchUserData = async (userId: string) => {
         try {
-            console.log("Fetching data for User ID:", storedUserId); // Debugging line
-            const res = await fetch(`http://localhost:5000/api/users/profile?userId=${storedUserId}`);
-    
+            const res = await fetch(`http://localhost:5000/api/users/profile?userId=${userId}`);
+
             if (!res.ok) {
                 throw new Error("Failed to fetch user data.");
             }
-    
+
             const data = await res.json();
-    
+
             if (data.success) {
                 setUserData(data.data);
             } else {
@@ -52,7 +50,6 @@ export default function Profile() {
             setLoading(false);
         }
     };
-    
 
     if (loading) return <p>Cargando...</p>;
     if (error) return <p>Error: {error}</p>;
@@ -96,6 +93,19 @@ export default function Profile() {
                     {userData.email}
                 </Typography>
             </Box>
+            <Button
+                variant="contained"
+                color="primary"
+                onClick={() => setShowChat((prev) => !prev)}
+                sx={{ marginBottom: "1rem" }}
+            >
+                {showChat ? "Hide Chat" : "Show Chat"}
+            </Button>
+
+            {/* Conditionally render ChatInterface if currentUserId is set */}
+            {currentUserId && showChat && (
+                <ChatInterface currentUserId={currentUserId} />
+            )}
 
             {/* Formulario para publicar */}
             <PostForm addPost={(newPost: IPost) => setPosts((prevPosts) => [newPost, ...prevPosts])} userId={userData._id} />
