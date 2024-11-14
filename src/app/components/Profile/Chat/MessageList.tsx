@@ -4,6 +4,7 @@ import MessageInput from './MessageInput';
 import { IMessage } from '../../../types/chatTypes';
 import Lightbox from 'yet-another-react-lightbox';
 import 'yet-another-react-lightbox/styles.css';
+import FileAttachment from './FileAttachment';
 
 interface MessageListProps {
     conversationId: string;
@@ -32,7 +33,6 @@ export default function MessageList({ conversationId, currentUserId }: MessageLi
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', padding: 2, backgroundColor: '#1f2937', color: '#ffffff' }}>
-            {/* Contenedor con scroll para los mensajes */}
             <Box sx={{ flexGrow: 1, overflowY: 'auto', maxHeight: '60vh', marginBottom: 2 }}>
                 <List>
                     {messages.map((message) => (
@@ -61,35 +61,22 @@ export default function MessageList({ conversationId, currentUserId }: MessageLi
                                         {message.sender.username}
                                     </Typography>
                                 )}
-                                <Typography variant="body2">{message.content}</Typography>
-                                {message.fileUrl && (
-                                    message.fileUrl.endsWith('.jpg') || message.fileUrl.endsWith('.png') || message.fileUrl.endsWith('.jpeg') ? (
-<img
-    src={message.fileUrl || ''} // Usa '' como valor predeterminado si fileUrl es undefined
-    alt="Attachment"
-    onClick={() => handleImageClick(message.fileUrl || '')} // También asegura un valor string para el onClick
-    style={{ cursor: 'pointer', maxWidth: '100px', maxHeight: '100px', borderRadius: '8px', marginTop: '5px' }}
-/>
+                                {message.content && <Typography variant="body2">{message.content}</Typography>}
 
-                                    ) : (
-                                        <a
-                                            href={`http://localhost:5000/api/messages/file/${message.fileUrl}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            style={{ color: '#4b9cd3', display: 'block', marginTop: '5px' }}
-                                        >
-                                            Descargar archivo
-                                        </a>
-                                    )
+                                {message.fileUrl && message.fileMetadata && (
+                                    <FileAttachment
+                                        fileUrl={`http://localhost:5000${message.fileUrl}`}
+                                        filename={message.fileMetadata.filename}
+                                        contentType={message.fileMetadata.contentType}
+                                        onImageClick={handleImageClick} // Pasamos handleImageClick aquí
+                                    />
                                 )}
-
                             </Box>
                         </ListItem>
                     ))}
                 </List>
             </Box>
 
-            {/* Lightbox para la visualización de imágenes */}
             {imageSrc && (
                 <Lightbox
                     open={lightboxOpen}
@@ -98,7 +85,6 @@ export default function MessageList({ conversationId, currentUserId }: MessageLi
                 />
             )}
 
-            {/* Contenedor del input fijo en la parte inferior */}
             <Box sx={{ position: 'sticky', bottom: 0, backgroundColor: '#1f2937', padding: '10px', zIndex: 10 }}>
                 <MessageInput
                     conversationId={conversationId}

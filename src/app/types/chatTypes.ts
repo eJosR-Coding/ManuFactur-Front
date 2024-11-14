@@ -1,5 +1,6 @@
 // src/types/chatTypes.ts
 export interface IMessage {
+    filename: string;
     _id: string;
     conversation: string;
     sender: {
@@ -8,6 +9,10 @@ export interface IMessage {
     };
     content?: string;
     fileUrl?: string;
+    fileMetadata?: {
+        filename: string;
+        contentType: string;
+    };
     createdAt: Date;
 }
 
