@@ -12,6 +12,7 @@ import {
   Checkbox,
   FormControlLabel,
 } from "@mui/material";
+import BackNavbar from "./BackNavbar";
 
 export default function RegisterForm() {
   const [email, setEmail] = useState("");
@@ -51,6 +52,7 @@ export default function RegisterForm() {
 
   return (
     <Container component="main" maxWidth="xs">
+      <BackNavbar />
       <Box
         sx={{
           display: "flex",

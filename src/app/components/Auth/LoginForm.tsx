@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from 'next/navigation';
-
+import BackNavbar from "./BackNavbar";
 import {
     TextField,
     Button,
@@ -50,6 +50,7 @@ export default function LoginForm() {
 
     return (
         <Container component="main" maxWidth="xs">
+              <BackNavbar />
             <Box
                 sx={{
                     display: "flex",
