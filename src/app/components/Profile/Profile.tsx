@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { Box, Button, Typography } from "@mui/material";
+import Navbar from "../Navbar";
 import PostForm from "./PostForm";
 import PostList from "./PostList";
+import ChatInterface from "./Chat/ChatInterface";
 import { IUser } from '../../types/user';
 import { IPost } from '../../types/post';
-import ChatInterface from "./Chat/ChatInterface";
 
 export default function Profile() {
     const [userData, setUserData] = useState<IUser | null>(null);
@@ -17,7 +18,6 @@ export default function Profile() {
     const [currentUserId, setCurrentUserId] = useState<string>('');
 
     useEffect(() => {
-        // Check if localStorage is available in the browser environment
         const storedUserId = typeof window !== "undefined" ? localStorage.getItem("userId") : '';
 
         if (storedUserId) {
@@ -56,62 +56,57 @@ export default function Profile() {
     if (!userData) return <p>No se encontraron datos del usuario.</p>;
 
     return (
-        <Box
-            sx={{
-                minHeight: "100vh",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                padding: "2rem",
-            }}
-        >
+        <>
+            {/* Navbar agregado en la parte superior */}
+            <Navbar />
+            
             <Box
                 sx={{
+                    minHeight: "100vh",
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
-                    backgroundColor: "#1f2937",
                     padding: "2rem",
-                    borderRadius: "8px",
-                    width: "100%",
-                    maxWidth: "600px",
-                    marginBottom: "2rem",
-                    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
                 }}
             >
-                <Typography
-                    variant="h4"
+                <Box
                     sx={{
-                        color: "#fff",
-                        fontWeight: "bold",
-                        marginBottom: "1rem",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        backgroundColor: "#1f2937",
+                        padding: "2rem",
+                        borderRadius: "8px",
+                        width: "100%",
+                        maxWidth: "600px",
+                        marginBottom: "2rem",
+                        boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
                     }}
                 >
-                    {userData.username}
-                </Typography>
-                <Typography variant="body1" sx={{ color: "#9CA3AF" }}>
-                    {userData.email}
-                </Typography>
+                    <Typography variant="h4" sx={{ color: "#fff", fontWeight: "bold", marginBottom: "1rem" }}>
+                        {userData.username}
+                    </Typography>
+                    <Typography variant="body1" sx={{ color: "#9CA3AF" }}>
+                        {userData.email}
+                    </Typography>
+                </Box>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => setShowChat((prev) => !prev)}
+                    sx={{ marginBottom: "1rem" }}
+                >
+                    {showChat ? "Hide Chat" : "Show Chat"}
+                </Button>
+
+                {currentUserId && showChat && (
+                    <ChatInterface currentUserId={currentUserId} />
+                )}
+
+                <PostForm addPost={(newPost: IPost) => setPosts((prevPosts) => [newPost, ...prevPosts])} userId={userData._id} />
+
+                <PostList posts={posts} setPosts={setPosts} userId={userData._id} />
             </Box>
-            <Button
-                variant="contained"
-                color="primary"
-                onClick={() => setShowChat((prev) => !prev)}
-                sx={{ marginBottom: "1rem" }}
-            >
-                {showChat ? "Hide Chat" : "Show Chat"}
-            </Button>
-
-            {/* Conditionally render ChatInterface if currentUserId is set */}
-            {currentUserId && showChat && (
-                <ChatInterface currentUserId={currentUserId} />
-            )}
-
-            {/* Formulario para publicar */}
-            <PostForm addPost={(newPost: IPost) => setPosts((prevPosts) => [newPost, ...prevPosts])} userId={userData._id} />
-
-            {/* Lista de publicaciones */}
-            <PostList posts={posts} setPosts={setPosts} userId={userData._id} />
-        </Box>
+        </>
     );
 }
