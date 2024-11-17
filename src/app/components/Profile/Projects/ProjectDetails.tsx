@@ -1,57 +1,95 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { Box, Typography, Button, CircularProgress } from "@mui/material";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-
-interface Project {
-  _id: string;
-  name: string;
-  description: string;
-}
-
+import { Box, Typography, Button } from "@mui/material";
+import ChatInterface from "../Chat/ChatInterface";
+import PostForm from "../PostForm";
+import PostList from "../PostList";
+import Navbar from "../../Navbar";
+import { IMessage } from "@/app/types/chatTypes";
+import { IPost } from "@/app/types/post";
 interface ProjectDetailsProps {
-  projectId: string;
+    projectId: string;
 }
 
-const ProjectDetails: React.FC<ProjectDetailsProps> = ({ projectId }) => {
-  const router = useRouter();
-  const [project, setProject] = useState<Project | null>(null);
-  const [loading, setLoading] = useState(true);
+export default function ProjectDetails({ projectId }: ProjectDetailsProps) {
+    const [project, setProject] = useState<{ name: string; description: string } | null>(null);
+    const [posts, setPosts] = useState<IPost[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchProject = async () => {
-      try {
-        const response = await fetch(`http://localhost:5000/api/projects/${projectId}`);
-        const data = await response.json();
-        if (data.success) {
-          setProject(data.data);
-        }
-      } catch (error) {
-        console.error("Error fetching project details:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProject();
-  }, [projectId]);
+    const [showChat, setShowChat] = useState(false);
+    const [currentUserId, setCurrentUserId] = useState<string>("");
 
-  if (loading) return <CircularProgress sx={{ display: "block", margin: "2rem auto" }} />;
-  if (!project) return <Typography>No se encontró el proyecto.</Typography>;
+    useEffect(() => {
+        const fetchProjectData = async () => {
+            try {
+                const res = await fetch(`http://localhost:5000/api/projects/${projectId}`);
+                if (!res.ok) throw new Error("Error fetching project data.");
+                const data = await res.json();
+                setProject(data.data);
+            } catch (err) {
+                console.error(err);
+                setError("Failed to load project.");
+            } finally {
+                setLoading(false);
+            }
+        };
 
-  return (
-    <Box sx={{ padding: "2rem", backgroundColor: "#ffffff", borderRadius: "8px" }}>
-<Typography variant="h3" sx={{ mb: 2, color: 'black' }}>
-        {project.name}
-      </Typography>
-      <Typography variant="h5" sx={{ mb: 3,  color: 'black' }}>
-        {project.description}
-      </Typography>
-      <Button variant="outlined" onClick={() => router.push("/projects")}>
-        Volver a Proyectos
-      </Button>
-    </Box>
-  );
-};
+        const storedUserId = localStorage.getItem("userId");
+        if (storedUserId) setCurrentUserId(storedUserId);
 
-export default ProjectDetails;
+        fetchProjectData();
+    }, [projectId]);
+
+    if (loading) return <p>Cargando...</p>;
+    if (error) return <p>Error: {error}</p>;
+    if (!project) return <p>Proyecto no encontrado.</p>;
+
+    return (
+        <>
+            <Navbar />
+            <Box
+                sx={{
+                    padding: "2rem",
+                    backgroundColor: "#121212",
+                    minHeight: "100vh",
+                    color: "#fff",
+                }}
+            >
+                {/* Información del Proyecto */}
+                <Typography variant="h4" sx={{ mb: 2 }}>
+                    {project.name}
+                </Typography>
+                <Typography variant="body1" sx={{ mb: 4 }}>
+                    {project.description}
+                </Typography>
+
+                {/* Botón para mostrar el chat */}
+                <Button
+                    variant="contained"
+                    onClick={() => setShowChat((prev) => !prev)}
+                    sx={{ mb: 3 }}
+                >
+                    {showChat ? "Ocultar Chat" : "Mostrar Chat"}
+                </Button>
+
+                {/* Chat del proyecto */}
+                {showChat && currentUserId && (
+                    <ChatInterface currentUserId={currentUserId} />
+                )}
+
+
+                {/* Formulario y lista de publicaciones */}
+                <PostForm
+                    addPost={(newPost: IPost) =>
+                        setPosts((prevPosts) => [newPost, ...prevPosts])
+                    }
+                    userId={currentUserId}
+                />
+                <PostList posts={posts} setPosts={setPosts} userId={currentUserId} />
+            </Box>
+        </>
+    );
+}

@@ -20,7 +20,7 @@ const Navbar: React.FC = () => {
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <Button
                         color="inherit"
-                        onClick={() => router.push('/')} // Asegúrate de que este método sea válido
+                        onClick={() => router.push('/')}
                         sx={{
                             display: 'flex',
                             alignItems: 'center',
@@ -42,9 +42,14 @@ const Navbar: React.FC = () => {
                     <Button color="inherit" onClick={() => router.push('/projects')} sx={{ color: '#ffffff' }}>
                         Proyectos
                     </Button>
-                    <Button color="inherit" onClick={() => router.push('/profile')} sx={{ color: '#ffffff' }}>
+                    <Button
+                        color="inherit"
+                        onClick={() => router.push('/profile/edit')} // Redirige al componente de edición de perfil
+                        sx={{ color: '#ffffff' }}
+                    >
                         Perfil
                     </Button>
+
                 </Box>
             </Toolbar>
         </AppBar>
