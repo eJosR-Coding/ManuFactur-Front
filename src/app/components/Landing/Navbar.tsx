@@ -21,7 +21,11 @@ export default function Navbar() {
     };
 
     return (
-        <AppBar position="fixed" color="primary">
+        <AppBar position="fixed" color="primary" sx={{
+            backgroundColor: '#1f2937',
+            padding: '0.5rem 1rem',
+            boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.2)',
+        }}>
             <Toolbar>
                 <Typography variant="h6" sx={{ flexGrow: 1 }}>
                     ManufacturPro
@@ -32,7 +36,9 @@ export default function Navbar() {
                     <Button color="inherit" onClick={() => router.push("/contact")}>Contacto</Button>
                     {isAuthenticated ? (
                         <>
-                            <Button color="inherit" onClick={() => router.push("/profile")}>Perfil</Button>
+                            <Button color="inherit" onClick={() => router.push("/perfil-bienvenida")}>
+                                Perfil
+                            </Button>
                             <Button color="inherit" onClick={handleLogout}>Cerrar sesión</Button>
                         </>
                     ) : (
